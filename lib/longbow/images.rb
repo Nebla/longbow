@@ -53,8 +53,8 @@ module Longbow
 
     # Resize
     image_sizes = []
-    image_sizes += ['180x180', '120x120', '114x114', '80x80', '58x58', '57x57', '29x29'] if iPhone
-    image_sizes += ['152x152', '144x144', '100x100', '80x80', '76x76', '72x72', '58x58', '50x50', '40x40', '29x29'] if iPad
+    image_sizes += ['180x180', '120x120', '114x114', '87x87', '80x80', '58x58', '57x57', '29x29'] if iPhone
+    image_sizes += ['167x167', '152x152', '144x144', '100x100', '80x80', '76x76', '72x72', '58x58', '50x50', '40x40', '29x29'] if iPad
     image_sizes.uniq.each do |size|
       image = Image.read(img_path).first
       next unless image
@@ -131,11 +131,11 @@ module Longbow
       f.write('{ "images" : [ ')
 
       if iPhone
-        f.write( '{ "size" : "29x29", "idiom" : "iphone", "filename" : "icon58x58.png", "scale" : "2x" }, { "size" : "40x40", "idiom" : "iphone", "filename" : "icon80x80.png", "scale" : "2x" }, { "size" : "60x60", "idiom" : "iphone", "filename" : "icon120x120.png", "scale" : "2x" }, { "size" : "29x29", "idiom" : "iphone", "filename" : "icon29x29.png", "scale" : "1x" }, { "size" : "57x57", "idiom" : "iphone", "filename" : "icon57x57.png", "scale" : "1x" }, { "size" : "57x57", "idiom" : "iphone", "filename" : "icon114x114.png", "scale" : "2x" }, { "size" : "60x60", "idiom" : "iphone", "filename" : "icon180x180.png", "scale" : "3x" }' + (iPad ? ',' : ''))
+        f.write( '{ "size" : "29x29", "idiom" : "iphone", "filename" : "icon58x58.png", "scale" : "2x" }, { "size" : "29x29", "idiom" : "iphone", "filename" : "icon87x87.png", "scale" : "3x" }, { "size" : "40x40", "idiom" : "iphone", "filename" : "icon80x80.png", "scale" : "2x" }, { "size" : "40x40", "idiom" : "iphone", "filename" : "icon120x120.png", "scale" : "3x" }, { "size" : "60x60", "idiom" : "iphone", "filename" : "icon120x120.png", "scale" : "2x" }, { "size" : "29x29", "idiom" : "iphone", "filename" : "icon29x29.png", "scale" : "1x" }, { "size" : "57x57", "idiom" : "iphone", "filename" : "icon57x57.png", "scale" : "1x" }, { "size" : "57x57", "idiom" : "iphone", "filename" : "icon114x114.png", "scale" : "2x" }, { "size" : "60x60", "idiom" : "iphone", "filename" : "icon180x180.png", "scale" : "3x" }' + (iPad ? ',' : ''))
       end
 
       if iPad
-        f.write( '{ "idiom" : "ipad", "size" : "29x29", "scale" : "1x", "filename" : "icon29x29.png" }, { "idiom" : "ipad", "size" : "29x29", "scale" : "2x", "filename" : "icon58x58.png" }, { "idiom" : "ipad", "size" : "40x40", "scale" : "1x", "filename" : "icon40x40.png" }, { "idiom" : "ipad", "size" : "40x40", "scale" : "2x", "filename" : "icon80x80.png" }, { "idiom" : "ipad", "size" : "76x76", "scale" : "1x", "filename" : "icon76x76.png" }, { "idiom" : "ipad", "size" : "76x76", "scale" : "2x", "filename" : "icon152x152.png" }, { "idiom" : "ipad", "size" : "50x50", "scale" : "1x", "filename" : "icon50x50.png" }, { "idiom" : "ipad", "size" : "50x50", "scale" : "2x", "filename" : "icon100x100.png" }, { "idiom" : "ipad", "size" : "72x72", "scale" : "1x", "filename" : "icon72x72.png" }, { "idiom" : "ipad", "size" : "72x72", "scale" : "2x", "filename" : "icon144x144.png" }')
+        f.write( '{ "idiom" : "ipad", "size" : "29x29", "scale" : "1x", "filename" : "icon29x29.png" }, { "idiom" : "ipad", "size" : "29x29", "scale" : "2x", "filename" : "icon58x58.png" }, { "idiom" : "ipad", "size" : "40x40", "scale" : "1x", "filename" : "icon40x40.png" }, { "idiom" : "ipad", "size" : "40x40", "scale" : "2x", "filename" : "icon80x80.png" }, { "idiom" : "ipad", "size" : "76x76", "scale" : "1x", "filename" : "icon76x76.png" }, { "idiom" : "ipad", "size" : "76x76", "scale" : "2x", "filename" : "icon152x152.png" }, { "idiom" : "ipad", "size" : "50x50", "scale" : "1x", "filename" : "icon50x50.png" }, { "idiom" : "ipad", "size" : "50x50", "scale" : "2x", "filename" : "icon100x100.png" }, { "idiom" : "ipad", "size" : "72x72", "scale" : "1x", "filename" : "icon72x72.png" }, { "idiom" : "ipad", "size" : "72x72", "scale" : "2x", "filename" : "icon144x144.png" }, { "idiom" : "ipad", "size" : "83.5x83.5", "scale" : "2x", "filename" : "icon167x167.png" }')
       end
 
       f.write(' ], "info" : { "version" : 1, "author" : "xcode" }, "properties" : { "pre-rendered" : true } }')
