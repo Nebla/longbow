@@ -16,13 +16,25 @@ module Longbow
 
   def self.get_plist_path(base_dir, main_plist, target, create_dir_for_plist)
     if create_dir_for_plist
-      plist_directory = main_plist.split('/')[0] + '/' + target 
+      plist_directory = main_plist.split('/')[0] + '/' + target
       FileUtils::mkdir_p plist_directory
       Longbow::blue 'Created plist dir ' + plist_directory
     end
-    return base_dir + '/' + self.get_plist_relative_path(main_plist,target, create_dir_for_plist)
+    return base_dir + '/' + self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
   end
 
+  def self.delete_default_build_configs(target)
+    configs_to_delete = %w(Release Debug)
+    target.build_configuration_list.default_configuration_name = 'Dev'
+    configs_to_delete.each do |config_name|
+      index = target.build_configuration_list.build_configurations.find_index { |item|
+        item.to_s == config_name
+      }
+      if index != nil
+        target.build_configuration_list.build_configurations[index].remove_from_project
+      end
+    end
+  end
 
   def self.update_target directory, target, global_keys, info_keys, icon, launch, create_dir_for_plist
     unless directory && target
@@ -40,6 +52,7 @@ module Longbow
     return false if project_paths.length == 0
     proj = Xcodeproj::Project.open(project_paths[0])
 
+    puts(Xcodeproj::Project.schemes(project_paths[0]))
     # Get Main Target's Basic Info
     @target = nil
     proj.targets.each do |t|
@@ -69,7 +82,8 @@ module Longbow
       f.write(plist_text)
     end
     Longbow::green '  - ' + target + '-Info.plist Updated.' unless $nolog
-    
+
+
     # Add Build Settings
     @target.build_configurations.each do |b|
       # Main Settings
@@ -104,6 +118,7 @@ module Longbow
 
   def self.create_target project, target
     main_target = project.targets.first
+    puts main_target.name
     deployment_target = main_target.deployment_target
 
     # Create New Target
@@ -128,8 +143,8 @@ module Longbow
           phase.shell_script = b.shell_script
         end
       end
-
       Longbow::blue '  ' + target + ' created.' unless $nolog
+      self.delete_default_build_configs(new_target)
     else
       puts
       Longbow::red '  Target Creation failed for target named: ' + target
