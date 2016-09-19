@@ -378,6 +378,7 @@ module Longbow
     img_path = directory + '/resources/'+ folder + '/'
     img_file_name = filename + '.png'
     FileUtils::mkdir_p img_path
+    puts img_path
     File.open(img_path + img_file_name, 'wb') do |f|
       f.write open(url).read
     end

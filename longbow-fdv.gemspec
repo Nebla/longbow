@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'longbow/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "longbow"
+  spec.name          = "longbow-fdv"
   spec.version       = Longbow::VERSION
   spec.authors       = ["Intermark Interactive"]
   spec.email         = ["interactive@intermarkgroup.com"]

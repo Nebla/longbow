@@ -2,10 +2,29 @@ require 'xcodeproj'
 require 'colors'
 require 'plist'
 require 'utilities'
+require 'fileutils'
 
 module Longbow
 
-  def self.update_target directory, target, global_keys, info_keys, icon, launch
+  def self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
+    base_path = main_plist.split('/')[0]
+    if create_dir_for_plist
+      return base_path + '/' + target + '/' + target + '-Info.plist'
+    end
+    return base_path + '/' + target + '-Info.plist'
+  end
+
+  def self.get_plist_path(base_dir, main_plist, target, create_dir_for_plist)
+    if create_dir_for_plist
+      plist_directory = main_plist.split('/')[0] + '/' + target 
+      FileUtils::mkdir_p plist_directory
+      Longbow::blue 'Created plist dir ' + plist_directory
+    end
+    return base_dir + '/' + self.get_plist_relative_path(main_plist,target, create_dir_for_plist)
+  end
+
+
+  def self.update_target directory, target, global_keys, info_keys, icon, launch, create_dir_for_plist
     unless directory && target
       Longbow::red '  Invalid parameters. Could not create/update target named: ' + target
       return false
@@ -39,15 +58,18 @@ module Longbow
 
     # Plist Creating/Adding
     main_plist = main_target.build_configurations[0].build_settings['INFOPLIST_FILE']
+
+    main_plist.sub! '$(SRCROOT)/', ''
     main_plist_contents = File.read(directory + '/' + main_plist)
-    target_plist_path = directory + '/' + main_plist.split('/')[0] + '/' + target + '-info.plist'
+
+
+    target_plist_path = self.get_plist_path(directory, main_plist, target, create_dir_for_plist)
     plist_text = Longbow::create_plist_from_old_plist main_plist_contents, info_keys, global_keys
     File.open(target_plist_path, 'w') do |f|
       f.write(plist_text)
     end
-    Longbow::green '  - ' + target + '-info.plist Updated.' unless $nolog
-
-
+    Longbow::green '  - ' + target + '-Info.plist Updated.' unless $nolog
+    
     # Add Build Settings
     @target.build_configurations.each do |b|
       # Main Settings
@@ -58,12 +80,14 @@ module Longbow
         base_config = bc.base_configuration_reference if bc.to_s == b.to_s
       end
       settings = b.build_settings
-      main_settings.each_key do |key|
-        settings[key] = main_settings[key]
-      end
 
+      if main_settings
+        main_settings.each_key do |key|
+          settings[key] = main_settings[key]
+        end
+      end
       # Plist & Icons
-      settings['INFOPLIST_FILE'] = main_plist.split('/')[0] + '/' + target + '-info.plist'
+      settings['INFOPLIST_FILE'] = get_plist_relative_path(main_plist, target, create_dir_for_plist)
       settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = Longbow::stripped_text(target) if icon
       settings['ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME'] = Longbow::stripped_text(target) if launch
       settings['SKIP_INSTALL'] = 'NO'
