@@ -11,7 +11,7 @@ module Longbow
     if create_dir_for_plist
       return base_path + '/' + target + '/' + target + '-Info.plist'
     end
-    return base_path + '/' + target + '-Info.plist'
+    base_path + '/' + target + '-Info.plist'
   end
 
   def self.get_plist_path(base_dir, main_plist, target, create_dir_for_plist)
@@ -20,7 +20,7 @@ module Longbow
       FileUtils::mkdir_p plist_directory
       Longbow::blue 'Created plist dir ' + plist_directory
     end
-    return base_dir + '/' + self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
+    base_dir + '/' + self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
   end
 
   def self.delete_default_build_configs(target)
@@ -52,7 +52,6 @@ module Longbow
     return false if project_paths.length == 0
     proj = Xcodeproj::Project.open(project_paths[0])
 
-    puts(Xcodeproj::Project.schemes(project_paths[0]))
     # Get Main Target's Basic Info
     @target = nil
     proj.targets.each do |t|
@@ -62,7 +61,10 @@ module Longbow
         break
       end
     end
-
+    if @target
+      Longbow::red 'Target ' + target + ' already exists.' unless $nolog
+      return false
+    end
     #puts proj.pretty_print
 
     # Create Target if Necessary
@@ -100,10 +102,11 @@ module Longbow
           settings[key] = main_settings[key]
         end
       end
+
       # Plist & Icons
-      settings['INFOPLIST_FILE'] = get_plist_relative_path(main_plist, target, create_dir_for_plist)
-      settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = Longbow::stripped_text(target) if icon
-      settings['ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME'] = Longbow::stripped_text(target) if launch
+      settings['INFOPLIST_FILE'] = self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
+      settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon' + Longbow::stripped_text(target) if icon
+      settings['ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME'] = 'LaunchImage' + Longbow::stripped_text(target) if launch
       settings['SKIP_INSTALL'] = 'NO'
 
       if File.exists? directory + '/Pods'
@@ -116,35 +119,25 @@ module Longbow
     proj.save
   end
 
+  def self.create_scheme project_path, target
+    scheme = Xcodeproj::XCScheme.new
+    scheme.add_build_target(target)
+    scheme.set_launch_target(target)
+    scheme.save_as(project_path, target.name, true)
+    Longbow::green 'Create scheme for ' + target.name unless $nolog
+  end
+
   def self.create_target project, target
     main_target = project.targets.first
-    puts main_target.name
     deployment_target = main_target.deployment_target
 
     # Create New Target
     new_target = Xcodeproj::Project::ProjectHelper.new_target project, :application, target, :ios, deployment_target, project.products_group, 'en'
     if new_target
-      # Add Build Phases
-      main_target.build_phases.objects.each do |b|
-        if b.isa == 'PBXSourcesBuildPhase'
-          b.files_references.each do |f|
-            new_target.source_build_phase.add_file_reference f
-          end
-        elsif b.isa == 'PBXFrameworksBuildPhase'
-          b.files_references.each do |f|
-            new_target.frameworks_build_phase.add_file_reference f
-          end
-        elsif b.isa == 'PBXResourcesBuildPhase'
-          b.files_references.each do |f|
-            new_target.resources_build_phase.add_file_reference f
-          end
-        elsif b.isa == 'PBXShellScriptBuildPhase'
-          phase = new_target.new_shell_script_build_phase(name = b.display_name)
-          phase.shell_script = b.shell_script
-        end
-      end
-      Longbow::blue '  ' + target + ' created.' unless $nolog
+      self.add_build_phases_to_new_target(main_target, new_target)
       self.delete_default_build_configs(new_target)
+      self.create_scheme(project.path, new_target)
+      Longbow::blue '  ' + target + ' created.' unless $nolog
     else
       puts
       Longbow::red '  Target Creation failed for target named: ' + target
@@ -152,6 +145,27 @@ module Longbow
     end
 
     return new_target
+  end
+
+  def self.add_build_phases_to_new_target(main_target, new_target)
+    main_target.build_phases.objects.each do |b|
+      if b.isa == 'PBXSourcesBuildPhase'
+        b.files_references.each do |f|
+          new_target.source_build_phase.add_file_reference f
+        end
+      elsif b.isa == 'PBXFrameworksBuildPhase'
+        b.files_references.each do |f|
+          new_target.frameworks_build_phase.add_file_reference f
+        end
+      elsif b.isa == 'PBXResourcesBuildPhase'
+        b.files_references.each do |f|
+          new_target.resources_build_phase.add_file_reference f
+        end
+      elsif b.isa == 'PBXShellScriptBuildPhase'
+        phase = new_target.new_shell_script_build_phase(name = b.display_name)
+        phase.shell_script = b.shell_script
+      end
+    end
   end
 
 end
