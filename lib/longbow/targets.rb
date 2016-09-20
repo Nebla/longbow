@@ -5,6 +5,22 @@ require 'utilities'
 require 'fileutils'
 
 module Longbow
+  def self.add_files (direc, current_group, target)
+    Dir.glob(direc) do |item|
+      next if item == '.' or item == '.DS_Store'
+
+      if File.directory?(item)
+        new_folder = File.basename(item)
+        created_group = current_group.new_group(new_folder)
+        puts(created_group.path, created_group.real_path)
+        addfiles("#{item}/*", created_group, target)
+      else
+        i = current_group.new_file(item)
+        puts(item)
+        target.add_resources([i])
+      end
+    end
+  end
 
   def self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
     base_path = main_plist.split('/')[0]
@@ -65,11 +81,9 @@ module Longbow
       Longbow::red 'Target ' + target + ' already exists.' unless $nolog
       return false
     end
-    #puts proj.pretty_print
 
-    # Create Target if Necessary
     main_target = proj.targets.first
-    @target = create_target(proj, target) unless @target
+    @target = create_target(proj, target)
 
     # Plist Creating/Adding
     main_plist = main_target.build_configurations[0].build_settings['INFOPLIST_FILE']
@@ -115,7 +129,6 @@ module Longbow
       end
     end
 
-    # Save The Project
     proj.save
   end
 
@@ -137,6 +150,16 @@ module Longbow
       self.add_build_phases_to_new_target(main_target, new_target)
       self.delete_default_build_configs(new_target)
       self.create_scheme(project.path, new_target)
+
+      index = project.main_group.children.index { |group|
+        group.path == 'Apps'
+      }
+
+      img_group = project.main_group.children[index]
+      target_group = img_group.new_group(target)
+
+      # HERE - Download assets and entitlements into the Apps/<target> folder
+      self.add_files("Apps/#{target}/*", target_group, new_target)
       Longbow::blue '  ' + target + ' created.' unless $nolog
     else
       puts
