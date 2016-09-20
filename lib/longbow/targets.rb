@@ -22,6 +22,25 @@ module Longbow
     end
   end
 
+  def self.get_project(directory)
+    # Find Project File
+    project_paths = []
+    Dir.foreach(directory) do |fname|
+      project_paths << fname if fname.include? '.xcodeproj'
+    end
+
+    # Open The Project
+    return nil if project_paths.length == 0
+    proj = Xcodeproj::Project.open(project_paths[0])
+    return proj
+  end
+
+  def self.get_main_plist_path(main_target)
+    main_plist = main_target.build_configurations[0].build_settings['INFOPLIST_FILE']
+    main_plist.sub! '$(SRCROOT)/', ''
+    return main_plist
+  end
+
   def self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
     base_path = main_plist.split('/')[0]
     if create_dir_for_plist
@@ -58,15 +77,8 @@ module Longbow
       return false
     end
 
-    # Find Project File
-    project_paths = []
-    Dir.foreach(directory) do |fname|
-      project_paths << fname if fname.include? '.xcodeproj'
-    end
-
-    # Open The Project
-    return false if project_paths.length == 0
-    proj = Xcodeproj::Project.open(project_paths[0])
+    proj = get_project(directory)
+    return false if proj == nil
 
     # Get Main Target's Basic Info
     @target = nil
@@ -82,15 +94,12 @@ module Longbow
       return false
     end
 
+    # Create Target if Necessary
     main_target = proj.targets.first
     @target = create_target(proj, target)
 
-    # Plist Creating/Adding
-    main_plist = main_target.build_configurations[0].build_settings['INFOPLIST_FILE']
-
-    main_plist.sub! '$(SRCROOT)/', ''
+    main_plist = get_main_plist_path(main_target)
     main_plist_contents = File.read(directory + '/' + main_plist)
-
 
     target_plist_path = self.get_plist_path(directory, main_plist, target, create_dir_for_plist)
     plist_text = Longbow::create_plist_from_old_plist main_plist_contents, info_keys, global_keys
@@ -189,6 +198,77 @@ module Longbow
         phase.shell_script = b.shell_script
       end
     end
+  end
+
+  def self.download_resource url
+    Longbow::green "Downloading url " + url
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true if uri.scheme == 'https'
+    request = Net::HTTP::Get.new(uri.request_uri)
+    return http.start { |http| http.request request }
+  end
+
+  def self.download_content directory, base_url, asset_name
+    contents_url = base_url + '/' + asset_name + '/contents.js'
+    contents_response = self.download_resource contents_url
+    if contents_response.code == "200"
+      File.open(directory+'/Contents.json', 'w') { |file| file.write(contents_response.body) }
+
+      result = JSON.parse(contents_response.body)
+
+      result['images'].each do |image|
+
+        image_url = base_url + '/' + asset_name + '/' + File.basename(image['filename'], ".*")
+        image_response = self.download_resource image_url
+        if image_response.code == "200"
+          File.open(directory+'/'+image['filename'], 'w') { |file| file.write(image_response.body) }
+        else
+          Longbow::red "Error downloading Image: " + image['filename']
+        end
+      end
+
+    else
+      Longbow::red "Error downloading Contents.json"
+    end
+  end
+
+  def self.crate_asset_catalog directory, target, assets
+    proj = get_project(directory)
+    return false if proj == nil
+
+    main_target = proj.targets.first
+    main_plist = get_main_plist_path(main_target)
+
+    # Assets directory
+    assets_directory = main_plist.split('/')[0] + '/' + target + '/AppIcons-' +  target + '.xcassets'
+    FileUtils::mkdir_p assets_directory
+
+    # Icons
+    icons_directory = assets_directory + '/AppIcon'+target+'.appiconset'
+    FileUtils::mkdir_p icons_directory
+    download_content(icons_directory, assets, 'icon')
+
+    # Top banner
+    banner_directory = assets_directory + '/banner.appiconset'
+    FileUtils::mkdir_p banner_directory
+    download_content(banner_directory, assets, 'top')
+
+    # Launch Image
+    launch_directory = assets_directory + '/LaunchImage'+target+'.launchimage'
+    FileUtils::mkdir_p launch_directory
+    download_content(launch_directory, assets, 'launch')
+
+    # Login background
+    #login_directory = assets_directory + '/login_background.imageset'
+    #FileUtils::mkdir_p login_directory
+    #download_content(login_logo_directory, assets, 'login_background')
+
+    # Login logo
+    login_logo_directory = assets_directory + '/logo.imageset'
+    FileUtils::mkdir_p login_logo_directory
+    download_content(login_logo_directory, assets, 'logo')
+
   end
 
 end
