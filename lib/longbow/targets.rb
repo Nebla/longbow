@@ -3,21 +3,25 @@ require 'colors'
 require 'plist'
 require 'utilities'
 require 'fileutils'
+require 'pathname'
 
 module Longbow
-
-  def self.add_files (direc, current_group, target)
+  def self.add_files (proj, direc, current_group, target)
     Dir.glob(direc) do |item|
       next if item == '.' or item == '.DS_Store'
 
       if File.directory?(item)
-        new_folder = File.basename(item)
-        created_group = current_group.new_group(new_folder)
-        puts(created_group.path, created_group.real_path)
-        add_files("#{item}/*", created_group, target)
+        folder_name = File.basename(item)
+        if folder_name.end_with? '.xcassets'
+          # Remove Apps/
+          path_components = item.split(File::SEPARATOR)
+          path_components.shift
+          return current_group.new_file(path_components.join(File::SEPARATOR))
+        end
+        created_group = current_group.new_group(folder_name)
+        add_files(proj, "#{item}/", created_group, target)
       else
         i = current_group.new_file(item)
-        puts(item)
         target.add_resources([i])
       end
     end
@@ -165,12 +169,13 @@ module Longbow
         group.path == 'Apps'
       }
 
-      img_group = project.main_group.children[index]
-      target_group = img_group.new_group(target)
+      apps_group = project.main_group.children[index]
+      target_group = apps_group.new_group(target)
+      target_group.set_source_tree(apps_group.source_tree)
 
       # HERE - Download assets and entitlements into the Apps/<target> folder
-      self.crate_asset_catalog(project, target, assets)
-      self.add_files("Apps/#{target}/*", target_group, new_target)
+      self.create_asset_catalog(project, target, assets)
+      self.add_files(project, "Apps/#{target}/*", target_group, new_target)
       Longbow::blue '  ' + target + ' created.' unless $nolog
     else
       puts
@@ -235,12 +240,12 @@ module Longbow
     end
   end
 
-  def self.crate_asset_catalog project, target, assets
+  def self.create_asset_catalog project, target, assets
     main_target = project.targets.first
     main_plist = get_main_plist_path(main_target)
 
     # Assets directory
-    assets_directory = main_plist.split('/')[0] + '/' + target + '/AppIcons-' +  target + '.xcassets'
+    assets_directory = main_plist.split('/')[0] + '/' + target + '/AppIcons-' + target + '.xcassets'
     FileUtils::mkdir_p assets_directory
 
     # Icons
