@@ -7,8 +7,10 @@ module Longbow
     filename = File.join(directory, 'Podfile')
 
     File.open(filename, 'r+') { |file|
-      puts file.grep(/#{target}/)
-      file.write(value) if file.grep(/#{target}/) == nil
+      unless file.grep(/#{target}/).any?
+        file.write(value)
+      end
+
     }
   end
 
