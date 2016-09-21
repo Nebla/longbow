@@ -151,8 +151,22 @@ module Longbow
 
   def self.create_scheme project_path, target
     scheme = Xcodeproj::XCScheme.new
+
+    build_action = Xcodeproj::XCScheme::BuildAction.new
+    build_action.add_entry(Xcodeproj::XCScheme::BuildAction::Entry.new(target))
+    scheme.build_action = build_action
     scheme.add_build_target(target)
+
+    launch_action = Xcodeproj::XCScheme::LaunchAction.new
+    launch_action.build_configuration = 'Production'
+    launch_action.buildable_product_runnable = Xcodeproj::XCScheme::BuildableProductRunnable.new(target)
+    scheme.launch_action = launch_action
     scheme.set_launch_target(target)
+
+    archive_action = Xcodeproj::XCScheme::ArchiveAction.new
+    archive_action.build_configuration = 'Production'
+    scheme.archive_action = archive_action
+
     scheme.save_as(project_path, target.name, true)
     Longbow::green 'Create scheme for ' + target.name unless $nolog
   end
@@ -185,8 +199,8 @@ module Longbow
       target_group = apps_group.new_group(target)
       target_group.set_source_tree(apps_group.source_tree)
       target_group.set_path(target)
-      #self.create_asset_catalog(project, target, assets)
-      #self.create_login_video(directory, target, video)
+      self.create_asset_catalog(project, target, assets)
+      self.create_login_video(directory, target, video)
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
 
       distll_group = self.find_group(project.main_group, 'Distll')
