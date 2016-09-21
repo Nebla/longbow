@@ -190,27 +190,22 @@ module Longbow
       self.delete_default_build_configs(new_target)
       self.create_scheme(project.path, new_target)
 
-      #index = project.main_group.children.index { |group|
-      #  group.path == 'Apps'
-      #}
-
-      #apps_group = project.main_group.children[index]
+      # Create asset catalog
+      self.create_asset_catalog(project, target, assets)
       apps_group = self.find_group(project.main_group, 'Apps')
       target_group = apps_group.new_group(target)
       target_group.set_source_tree(apps_group.source_tree)
       target_group.set_path(target)
-      self.create_asset_catalog(project, target, assets)
-      self.create_login_video(directory, target, video)
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
 
+      # Create login video
+      self.create_login_video(directory, target, video)
       distll_group = self.find_group(project.main_group, 'Distll')
       resources_group = self.find_group(distll_group, 'Resources')
       assets_group = self.find_group(resources_group, 'Assets')
       videos_group = self.find_group(assets_group, 'Videos')
-
       target_group = videos_group.new_group(target)
       target_group.set_source_tree(videos_group.source_tree)
-
       self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
 
       Longbow::blue '  ' + target + ' created.' unless $nolog
@@ -285,13 +280,20 @@ module Longbow
     assets_directory = main_plist.split('/')[0] + '/' + target + '/AppIcons-' + target + '.xcassets'
     FileUtils::mkdir_p assets_directory
 
+    # Contents.json file
+    json_file = "{\"info\" : {\"version\" : 1,\"author\" : \"xcode\"}}"
+    filename = File.join(assets_directory, 'Contents.json')
+    File.open(filename, 'w') { |file|
+      file.write(json_file)
+    }
+
     # Icons
     icons_directory = assets_directory + '/AppIcon'+target+'.appiconset'
     FileUtils::mkdir_p icons_directory
     download_content(icons_directory, assets, 'icon')
 
     # Top banner
-    banner_directory = assets_directory + '/banner.appiconset'
+    banner_directory = assets_directory + '/banner.imageset'
     FileUtils::mkdir_p banner_directory
     download_content(banner_directory, assets, 'top')
 
