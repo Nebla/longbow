@@ -230,9 +230,13 @@ module Longbow
         end
       elsif b.isa == 'PBXResourcesBuildPhase'
         b.files_references.each do |f|
+          #Ignore main target specific assets
+          next if f.path == 'AppIcons-Distll.xcassets'
+          next if f.path == 'Distll.entitlements'
+          next if f.path == 'Distll-Info.plist'
           new_target.resources_build_phase.add_file_reference f
         end
-      elsif b.isa == 'PBXShellScriptBuildPhase'
+      elsif b.isa == 'PBXShellScriptBuildPh ase'
         phase = new_target.new_shell_script_build_phase(name = b.display_name)
         phase.shell_script = b.shell_script
       end
