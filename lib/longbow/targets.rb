@@ -5,6 +5,7 @@ require 'utilities'
 require 'fileutils'
 
 module Longbow
+
   def self.add_files (direc, current_group, target)
     Dir.glob(direc) do |item|
       next if item == '.' or item == '.DS_Store'
@@ -13,7 +14,7 @@ module Longbow
         new_folder = File.basename(item)
         created_group = current_group.new_group(new_folder)
         puts(created_group.path, created_group.real_path)
-        addfiles("#{item}/*", created_group, target)
+        add_files("#{item}/*", created_group, target)
       else
         i = current_group.new_file(item)
         puts(item)
@@ -71,7 +72,7 @@ module Longbow
     end
   end
 
-  def self.update_target directory, target, global_keys, info_keys, icon, launch, create_dir_for_plist
+  def self.update_target(directory, target, global_keys, info_keys, icon, launch, assets, create_dir_for_plist)
     unless directory && target
       Longbow::red '  Invalid parameters. Could not create/update target named: ' + target
       return false
@@ -96,7 +97,7 @@ module Longbow
 
     # Create Target if Necessary
     main_target = proj.targets.first
-    @target = create_target(proj, target)
+    @target = create_target(proj, target, assets)
 
     main_plist = get_main_plist_path(main_target)
     main_plist_contents = File.read(directory + '/' + main_plist)
@@ -149,7 +150,7 @@ module Longbow
     Longbow::green 'Create scheme for ' + target.name unless $nolog
   end
 
-  def self.create_target project, target
+  def self.create_target project, target, assets
     main_target = project.targets.first
     deployment_target = main_target.deployment_target
 
@@ -168,6 +169,7 @@ module Longbow
       target_group = img_group.new_group(target)
 
       # HERE - Download assets and entitlements into the Apps/<target> folder
+      self.crate_asset_catalog(project, target, assets)
       self.add_files("Apps/#{target}/*", target_group, new_target)
       Longbow::blue '  ' + target + ' created.' unless $nolog
     else
@@ -233,11 +235,8 @@ module Longbow
     end
   end
 
-  def self.crate_asset_catalog directory, target, assets
-    proj = get_project(directory)
-    return false if proj == nil
-
-    main_target = proj.targets.first
+  def self.crate_asset_catalog project, target, assets
+    main_target = project.targets.first
     main_plist = get_main_plist_path(main_target)
 
     # Assets directory

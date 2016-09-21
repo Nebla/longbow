@@ -40,7 +40,6 @@ command :shoot do |c|
       next
     end
 
-
     # Check for Target Name
     if @target_name
       obj['targets'].each do |t|
@@ -61,8 +60,7 @@ command :shoot do |c|
       launch = t['launch_phone_p_url'] || t['launch_phone_p_path'] || t['launch_phone_l_url'] || t['launch_phone_l_path'] || t['launch_tablet_p_url'] || t['launch_tablet_p_path'] || t['launch_tablet_l_url'] || t['launch_tablet_l_path']
 
       assets = t['assets_url']
-      Longbow::update_target @directory, t['name'], obj['global_info_keys'], t['info_plist'], icon, launch, t['create_dir_for_plist']
-      Longbow::crate_asset_catalog @directory, t['name'], assets
+      Longbow::update_target @directory, t['name'], obj['global_info_keys'], t['info_plist'], icon, launch, assets, t['create_dir_for_plist']
 
       # Longbow::create_images(@directory, t, obj) unless @noimages
       Longbow::green "  Finished: #{t['name']}\n" unless $nolog
