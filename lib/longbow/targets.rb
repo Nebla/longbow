@@ -6,6 +6,12 @@ require 'fileutils'
 require 'pathname'
 
 module Longbow
+
+  def self.add_file (file, target, current_group)
+    i = current_group.new_file(File.basename(file))
+    target.add_resources([i])
+  end
+
   def self.add_files (proj, direc, current_group, target)
     Dir.glob(direc) do |item|
       next if item == '.' or item == '.DS_Store'
@@ -13,16 +19,13 @@ module Longbow
       if File.directory?(item)
         folder_name = File.basename(item)
         if folder_name.end_with? '.xcassets'
-          # Remove Apps/
-          path_components = item.split(File::SEPARATOR)
-          path_components.shift
-          return current_group.new_file(path_components.join(File::SEPARATOR))
+          self.add_file(item, target, current_group)
+          return
         end
         created_group = current_group.new_group(folder_name)
         add_files(proj, "#{item}/", created_group, target)
       else
-        i = current_group.new_file(item)
-        target.add_resources([i])
+        self.add_file(item, target, current_group)
       end
     end
   end
@@ -76,7 +79,7 @@ module Longbow
     end
   end
 
-  def self.update_target(directory, target, global_keys, info_keys, icon, launch, assets, create_dir_for_plist)
+  def self.update_target(directory, target, global_keys, info_keys, icon, launch, assets, video, create_dir_for_plist)
     unless directory && target
       Longbow::red '  Invalid parameters. Could not create/update target named: ' + target
       return false
@@ -101,7 +104,7 @@ module Longbow
 
     # Create Target if Necessary
     main_target = proj.targets.first
-    @target = create_target(proj, target, assets)
+    @target = create_target(proj, directory, target, assets, video)
 
     main_plist = get_main_plist_path(main_target)
     main_plist_contents = File.read(directory + '/' + main_plist)
@@ -154,7 +157,15 @@ module Longbow
     Longbow::green 'Create scheme for ' + target.name unless $nolog
   end
 
-  def self.create_target project, target, assets
+  def self.find_group (parent, name)
+    index = parent.children.index { |group|
+      group.path == name
+    }
+
+    return parent.children[index]
+  end
+
+  def self.create_target (project, directory, target, assets, video)
     main_target = project.targets.first
     deployment_target = main_target.deployment_target
 
@@ -165,17 +176,29 @@ module Longbow
       self.delete_default_build_configs(new_target)
       self.create_scheme(project.path, new_target)
 
-      index = project.main_group.children.index { |group|
-        group.path == 'Apps'
-      }
+      #index = project.main_group.children.index { |group|
+      #  group.path == 'Apps'
+      #}
 
-      apps_group = project.main_group.children[index]
+      #apps_group = project.main_group.children[index]
+      apps_group = self.find_group(project.main_group, 'Apps')
       target_group = apps_group.new_group(target)
       target_group.set_source_tree(apps_group.source_tree)
-
-      # HERE - Download assets and entitlements into the Apps/<target> folder
-      self.create_asset_catalog(project, target, assets)
+      target_group.set_path(target)
+      #self.create_asset_catalog(project, target, assets)
+      #self.create_login_video(directory, target, video)
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
+
+      distll_group = self.find_group(project.main_group, 'Distll')
+      resources_group = self.find_group(distll_group, 'Resources')
+      assets_group = self.find_group(resources_group, 'Assets')
+      videos_group = self.find_group(assets_group, 'Videos')
+
+      target_group = videos_group.new_group(target)
+      target_group.set_source_tree(videos_group.source_tree)
+
+      self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
+
       Longbow::blue '  ' + target + ' created.' unless $nolog
     else
       puts
@@ -273,6 +296,24 @@ module Longbow
     FileUtils::mkdir_p login_logo_directory
     download_content(login_logo_directory, assets, 'logo')
 
+  end
+
+  #def self.create_login_video(project, target, asset)
+    #video_url = asset + '/video.mp4'
+  def self.create_login_video(directory, target, video)
+    video_url = video
+    contents_response = self.download_resource video_url
+    if contents_response.code == "200"
+
+      video_path = directory+'/Distll/Resources/Assets/Videos/'+target
+      FileUtils.mkdir_p(video_path) unless File.exists?(video_path)
+
+      File.open(video_path+"/V5.mp4", 'w') { |file| file.write(contents_response.body) }
+
+
+    else
+      Longbow::red "Error downloading video"
+    end
   end
 
 end

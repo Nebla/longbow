@@ -1,7 +1,8 @@
 $:.push File.expand_path('../../', __FILE__)
 require 'fileutils'
-require 'longbow/colors'
+require 'longbow/cocoapods'
 require 'longbow/targets'
+require 'longbow/colors'
 require 'longbow/images'
 require 'longbow/json'
 require 'json'
@@ -60,9 +61,11 @@ command :shoot do |c|
       launch = t['launch_phone_p_url'] || t['launch_phone_p_path'] || t['launch_phone_l_url'] || t['launch_phone_l_path'] || t['launch_tablet_p_url'] || t['launch_tablet_p_path'] || t['launch_tablet_l_url'] || t['launch_tablet_l_path']
 
       assets = t['assets_url']
-      Longbow::update_target @directory, t['name'], obj['global_info_keys'], t['info_plist'], icon, launch, assets, t['create_dir_for_plist']
+      video = t['video_url'] # Will be replaced with assets + '/video.mp4'
+      Longbow::update_target @directory, t['name'], obj['global_info_keys'], t['info_plist'], icon, launch, assets, video, t['create_dir_for_plist']
+      Longbow::update_podfile @directory, t['name']
+      Longbow::install_pods
 
-      # Longbow::create_images(@directory, t, obj) unless @noimages
       Longbow::green "  Finished: #{t['name']}\n" unless $nolog
     end
   end
