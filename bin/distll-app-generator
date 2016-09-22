@@ -6,11 +6,11 @@ Dotenv.load
 require 'commander/import'
 
 $:.push File.expand_path("../../lib", __FILE__)
-require 'longbow'
+require 'distll-app-generator'
 
 HighLine.track_eof = false # Fix for built-in Ruby
 
-program :version, Longbow::VERSION
+program :version, DistllAppGenerator::VERSION
 program :description, 'One codebase. Multiple App Store submission targets with different icons, launch images, info.plist keys, etc.'
 
 program :help, 'Author', 'Benjamin Gordon (@bennyguitar) for Intermark Group <interactive@intermarkgroup.com>'
@@ -21,4 +21,4 @@ global_option('--dontlog') { $nolog = true }
 
 default_command :help
 
-require 'longbow/commands'
+require 'distll-app-generator/commands'

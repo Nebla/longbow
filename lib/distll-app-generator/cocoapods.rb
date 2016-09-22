@@ -1,4 +1,4 @@
-module Longbow
+module DistllAppGenerator
   def self.update_podfile(directory, target)
     value = "\ntarget '#{target}’ do\n" \
 	         "\tall_pods\n"\

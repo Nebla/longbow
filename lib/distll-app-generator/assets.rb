@@ -1,9 +1,9 @@
 require 'plist'
 
-module Longbow
+module DistllAppGenerator
   module Assets
     def self.download_resource url
-      Longbow::green "Downloading url " + url
+      DistllAppGenerator::green "Downloading url " + url
       uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true if uri.scheme == 'https'
@@ -26,18 +26,18 @@ module Longbow
           if image_response.code == "200"
             File.open(directory+'/'+image['filename'], 'w') { |file| file.write(image_response.body) }
           else
-            Longbow::red "Error downloading Image: " + image['filename']
+            DistllAppGenerator::red "Error downloading Image: " + image['filename']
           end
         end
 
       else
-        Longbow::red "Error downloading Contents.json"
+        DistllAppGenerator::red "Error downloading Contents.json"
       end
     end
 
     def self.create_asset_catalog project, target, assets
       main_target = project.targets.first
-      main_plist = Longbow::get_main_plist_path(main_target)
+      main_plist = DistllAppGenerator::get_main_plist_path(main_target)
 
       # Assets directory
       assets_directory = main_plist.split('/')[0] + '/' + target + '/AppIcons-' + target + '.xcassets'
@@ -85,7 +85,7 @@ module Longbow
         FileUtils.mkdir_p(video_path) unless File.exists?(video_path)
         File.open(video_path + "/V5.mp4", 'w') { |file| file.write(contents_response.body) }
       else
-        Longbow::red "Error downloading video"
+        DistllAppGenerator::red "Error downloading video"
       end
     end
   end

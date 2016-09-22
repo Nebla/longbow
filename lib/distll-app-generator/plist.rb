@@ -1,4 +1,4 @@
-module Longbow
+module DistllAppGenerator
 
   # Create Plist from Original Plist Content
   def self.create_plist_from_old_plist old_plist, info_hash, global_hash

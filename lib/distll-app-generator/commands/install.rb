@@ -1,24 +1,24 @@
 $:.push File.expand_path('../../', __FILE__)
 require 'fileutils'
-require 'longbow'
+require 'distll-app-generator'
 
 command :install do |c|
-  c.syntax = 'longbow install [options]'
+  c.syntax = 'distll-app-generator install [options]'
   c.summary = 'Creates the required files in your directory.'
   c.description = ''
-  c.option '-d', '--directory DIRECTORY', 'Path where the .xcproj or .xcworkspace file && the longbow.json file live.'
+  c.option '-d', '--directory DIRECTORY', 'Path where the .xcproj or .xcworkspace file && the distll-app-generator.json file live.'
 
   c.action do |args, options|
     # Check for newer version
-    Longbow::check_for_newer_version unless $nolog
+    DistllAppGenerator::check_for_newer_version unless $nolog
 
     # Set Up
     @directory = options.directory ? options.directory : Dir.pwd
-    @json_path = @directory + '/longbow.json'
+    @json_path = @directory + '/distll-app-generator.json'
 
     # Install
     if File.exist?(@json_path)
-      Longbow::red '  longbow.json already exists at ' + @json_path
+      DistllAppGenerator::red '  distll-app-generator.json already exists at ' + @json_path
     else
       File.open(@json_path, 'w') do |f|
         f.write('{
@@ -48,7 +48,7 @@ command :install do |c|
     "devices":["iPhone","iPad"]
 }')
       end
-      Longbow::green '  longbow.json created' unless $nolog
+      DistllAppGenerator::green '  distll-app-generator.json created' unless $nolog
     end
   end
 end

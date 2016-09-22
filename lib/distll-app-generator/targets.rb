@@ -6,7 +6,7 @@ require 'fileutils'
 require 'pathname'
 require 'assets'
 
-module Longbow
+module DistllAppGenerator
 
   def self.add_file (file, target, current_group)
     i = current_group.new_file(File.basename(file))
@@ -56,7 +56,7 @@ module Longbow
     if create_dir_for_plist
       plist_directory = main_plist.split('/')[0] + '/' + target
       FileUtils::mkdir_p plist_directory
-      Longbow::blue 'Created plist dir ' + plist_directory
+      DistllAppGenerator::blue 'Created plist dir ' + plist_directory
     end
     base_dir + '/' + self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
   end
@@ -76,7 +76,7 @@ module Longbow
 
   def self.update_target(directory, target, global_keys, info_keys, icon, launch, assets, video, create_dir_for_plist)
     unless directory && target
-      Longbow::red '  Invalid parameters. Could not create/update target named: ' + target
+      DistllAppGenerator::red '  Invalid parameters. Could not create/update target named: ' + target
       return false
     end
 
@@ -88,12 +88,12 @@ module Longbow
     proj.targets.each do |t|
       if t.to_s == target
         @target = t
-        Longbow::blue '  ' + target + ' found.' unless $nolog
+        DistllAppGenerator::blue '  ' + target + ' found.' unless $nolog
         break
       end
     end
     if @target
-      Longbow::red 'Target ' + target + ' already exists.' unless $nolog
+      DistllAppGenerator::red 'Target ' + target + ' already exists.' unless $nolog
       return false
     end
 
@@ -101,15 +101,15 @@ module Longbow
     main_target = proj.targets.first
     @target = create_target(proj, directory, target, assets, video)
 
-    main_plist = Longbow::get_main_plist_path(main_target)
+    main_plist = DistllAppGenerator::get_main_plist_path(main_target)
     main_plist_contents = File.read(directory + '/' + main_plist)
 
     target_plist_path = self.get_plist_path(directory, main_plist, target, create_dir_for_plist)
-    plist_text = Longbow::create_plist_from_old_plist main_plist_contents, info_keys, global_keys
+    plist_text = DistllAppGenerator::create_plist_from_old_plist main_plist_contents, info_keys, global_keys
     File.open(target_plist_path, 'w') do |f|
       f.write(plist_text)
     end
-    Longbow::green '  - ' + target + '-Info.plist Updated.' unless $nolog
+    DistllAppGenerator::green '  - ' + target + '-Info.plist Updated.' unless $nolog
 
 
     # Add Build Settings
@@ -131,8 +131,8 @@ module Longbow
 
       # Plist & Icons
       settings['INFOPLIST_FILE'] = self.get_plist_relative_path(main_plist, target, create_dir_for_plist)
-      settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon' + Longbow::stripped_text(target) if icon
-      settings['ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME'] = 'LaunchImage' + Longbow::stripped_text(target) if launch
+      settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon' + DistllAppGenerator::stripped_text(target) if icon
+      settings['ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME'] = 'LaunchImage' + DistllAppGenerator::stripped_text(target) if launch
       settings['SKIP_INSTALL'] = 'NO'
 
       if File.exists? directory + '/Pods'
@@ -163,7 +163,7 @@ module Longbow
     scheme.archive_action = archive_action
 
     scheme.save_as(project_path, target.name, true)
-    Longbow::green 'Create scheme for ' + target.name unless $nolog
+    DistllAppGenerator::green 'Create scheme for ' + target.name unless $nolog
   end
 
   def self.find_group (parent, name)
@@ -186,7 +186,7 @@ module Longbow
       self.create_scheme(project.path, new_target)
 
       # Create asset catalog
-      Longbow::Assets.create_asset_catalog(project, target, assets)
+      #DistllAppGenerator::Assets.create_asset_catalog(project, target, assets)
       apps_group = self.find_group(project.main_group, 'Apps')
       target_group = apps_group.new_group(target)
       target_group.set_source_tree(apps_group.source_tree)
@@ -194,7 +194,7 @@ module Longbow
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
 
       # Create login video
-      Longbow::Assets.create_login_video(directory, target, video)
+      #DistllAppGenerator::Assets.create_login_video(directory, target, video)
       distll_group = self.find_group(project.main_group, 'Distll')
       resources_group = self.find_group(distll_group, 'Resources')
       assets_group = self.find_group(resources_group, 'Assets')
@@ -203,10 +203,10 @@ module Longbow
       target_group.set_source_tree(videos_group.source_tree)
       self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
 
-      Longbow::blue '  ' + target + ' created.' unless $nolog
+      DistllAppGenerator::blue '  ' + target + ' created.' unless $nolog
     else
       puts
-      Longbow::red '  Target Creation failed for target named: ' + target
+      DistllAppGenerator::red '  Target Creation failed for target named: ' + target
       puts
     end
 

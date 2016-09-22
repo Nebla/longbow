@@ -1,4 +1,4 @@
-module Longbow
+module DistllAppGenerator
   # Main Colorize Functions
   def self.colorize(text, color_code)
     puts "\e[#{color_code}m#{text}\e[0m"
