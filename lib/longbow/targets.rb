@@ -191,7 +191,7 @@ module Longbow
       self.create_scheme(project.path, new_target)
 
       # Create asset catalog
-      self.create_asset_catalog(project, target, assets)
+      #self.create_asset_catalog(project, target, assets)
       apps_group = self.find_group(project.main_group, 'Apps')
       target_group = apps_group.new_group(target)
       target_group.set_source_tree(apps_group.source_tree)
@@ -199,7 +199,7 @@ module Longbow
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
 
       # Create login video
-      self.create_login_video(directory, target, video)
+      #self.create_login_video(directory, target, video)
       distll_group = self.find_group(project.main_group, 'Distll')
       resources_group = self.find_group(distll_group, 'Resources')
       assets_group = self.find_group(resources_group, 'Assets')
@@ -234,6 +234,7 @@ module Longbow
           next if f.path == 'AppIcons-Distll.xcassets'
           next if f.path == 'Distll.entitlements'
           next if f.path == 'Distll-Info.plist'
+          next if f.path == 'V5.mp4'
           new_target.resources_build_phase.add_file_reference f
         end
       elsif b.isa == 'PBXShellScriptBuildPh ase'
