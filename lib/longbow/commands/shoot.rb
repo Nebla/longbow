@@ -61,7 +61,7 @@ command :shoot do |c|
       launch = t['launch_phone_p_url'] || t['launch_phone_p_path'] || t['launch_phone_l_url'] || t['launch_phone_l_path'] || t['launch_tablet_p_url'] || t['launch_tablet_p_path'] || t['launch_tablet_l_url'] || t['launch_tablet_l_path']
 
       assets = t['assets_url']
-      video = t['video_url'] # Will be replaced with assets + '/video.mp4'
+      video = t['video_url']
       Longbow::update_target @directory, t['name'], obj['global_info_keys'], t['info_plist'], icon, launch, assets, video, t['create_dir_for_plist']
       Longbow::update_podfile @directory, t['name']
       Longbow::install_pods

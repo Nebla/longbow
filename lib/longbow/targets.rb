@@ -175,7 +175,6 @@ module Longbow
     index = parent.children.index { |group|
       group.path == name
     }
-
     return parent.children[index]
   end
 
@@ -198,15 +197,17 @@ module Longbow
       target_group.set_path(target)
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
 
-      # Create login video
-      self.create_login_video(directory, target, video)
-      distll_group = self.find_group(project.main_group, 'Distll')
-      resources_group = self.find_group(distll_group, 'Resources')
-      assets_group = self.find_group(resources_group, 'Assets')
-      videos_group = self.find_group(assets_group, 'Videos')
-      target_group = videos_group.new_group(target)
-      target_group.set_source_tree(videos_group.source_tree)
-      self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
+      if video
+        # Create login video
+        self.create_login_video(directory, target, video)
+        distll_group = self.find_group(project.main_group, 'Distll')
+        resources_group = self.find_group(distll_group, 'Resources')
+        assets_group = self.find_group(resources_group, 'Assets')
+        videos_group = self.find_group(assets_group, 'Videos')
+        target_group = videos_group.new_group(target)
+        target_group.set_source_tree(videos_group.source_tree)
+        self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
+      end
 
       Longbow::blue '  ' + target + ' created.' unless $nolog
     else
@@ -318,19 +319,13 @@ module Longbow
 
   end
 
-  #def self.create_login_video(project, target, asset)
-    #video_url = asset + '/video.mp4'
   def self.create_login_video(directory, target, video)
     video_url = video
     contents_response = self.download_resource video_url
     if contents_response.code == "200"
-
       video_path = directory+'/Distll/Resources/Assets/Videos/'+target
       FileUtils.mkdir_p(video_path) unless File.exists?(video_path)
-
       File.open(video_path+"/V5.mp4", 'w') { |file| file.write(contents_response.body) }
-
-
     else
       Longbow::red "Error downloading video"
     end
