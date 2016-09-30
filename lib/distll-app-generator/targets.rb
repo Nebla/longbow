@@ -241,7 +241,7 @@ module DistllAppGenerator
   end
 
   def self.download_resource url
-    Longbow::green "Downloading url " + url
+    DistllAppGenerator::green "Downloading url " + url
     uri = URI.parse(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true if uri.scheme == 'https'
@@ -264,12 +264,12 @@ module DistllAppGenerator
         if image_response.code == "200"
           File.open(directory+'/'+image['filename'], 'w') { |file| file.write(image_response.body) }
         else
-          Longbow::red "Error downloading Image: " + image['filename']
+          DistllAppGenerator::red "Error downloading Image: " + image['filename']
         end
       end
 
     else
-      Longbow::red "Error downloading Contents.json"
+      DistllAppGenerator::red "Error downloading Contents.json"
     end
   end
 
@@ -323,7 +323,7 @@ module DistllAppGenerator
       FileUtils.mkdir_p(video_path) unless File.exists?(video_path)
       File.open(video_path+"/V5.mp4", 'w') { |file| file.write(contents_response.body) }
     else
-      Longbow::red "Error downloading video"
+      DistllAppGenerator::red "Error downloading video"
     end
   end
 

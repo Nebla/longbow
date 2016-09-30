@@ -65,7 +65,7 @@ module DistllAppGenerator
       FileUtils::mkdir_p launch_directory
       download_content(launch_directory, assets, 'launch')
 
-      # Login background
+      # Login background - Not implemented in backend yet
       #login_directory = assets_directory + '/login_background.imageset'
       #FileUtils::mkdir_p login_directory
       #download_content(login_logo_directory, assets, 'login_background')
