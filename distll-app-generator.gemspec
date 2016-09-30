@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'longbow/version'
+require 'distll-app-generator/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "longbow-fdv"
-  spec.version       = Longbow::VERSION
+  spec.name          = "distll-app-generator"
+  spec.version       = DistllAppGenerator::VERSION
   spec.authors       = ["Intermark Interactive"]
   spec.email         = ["interactive@intermarkgroup.com"]
   spec.description   = "One codebase. Multiple App Store submission targets with different icons, launch images, info.plist keys, etc."
   spec.summary       = "Better target creation for one iOS codebase."
-  spec.homepage      = "https://github.com/intermark/longbow"
+  spec.homepage      = "https://github.com/intermark/distll-app-generator"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

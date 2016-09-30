@@ -7,7 +7,7 @@ require 'xcodeproj'
 require 'open-uri'
 require 'utilities'
 
-module Longbow
+module DistllAppGenerator
 
   # Images
   def self.create_images directory, t, obj
@@ -61,7 +61,7 @@ module Longbow
       resize_image_to_directory img_dir, image, size, 'icon'
     end
 
-    Longbow::green ('  - Created Icon images for ' + target) unless $nolog
+    DistllAppGenerator::green ('  - Created Icon images for ' + target) unless $nolog
     return true
   end
 
@@ -103,7 +103,7 @@ module Longbow
       end
     end
 
-    Longbow::green ('  - Created Launch images for ' + target) unless $nolog
+    DistllAppGenerator::green ('  - Created Launch images for ' + target) unless $nolog
     return true
   end
 
@@ -142,7 +142,7 @@ module Longbow
     end
 
     # Return true
-    Longbow::green ('  - Created Images.xcassets icon set for ' + target) unless $nolog
+    DistllAppGenerator::green ('  - Created Images.xcassets icon set for ' + target) unless $nolog
     return true
   end
 
@@ -348,7 +348,7 @@ module Longbow
     end
 
     # Return true
-    Longbow::green ('  - Created Images.xcassets launch image set for ' + target) unless $nolog
+    DistllAppGenerator::green ('  - Created Images.xcassets launch image set for ' + target) unless $nolog
     return true
   end
 
@@ -356,7 +356,7 @@ module Longbow
   # Asset Directory Methods
   def self.make_asset_directory directory, target, path_extension
     asset_path = assets_file_path directory
-    full_path = asset_path + '/' + Longbow::stripped_text(target) + path_extension
+    full_path = asset_path + '/' + DistllAppGenerator::stripped_text(target) + path_extension
     FileUtils::mkdir_p full_path
     return full_path
   end

@@ -1,23 +1,23 @@
 require 'fileutils'
-require 'longbow/colors'
-require 'longbow/targets'
-require 'longbow/images'
-require 'longbow/json'
+require 'distll-app-generator/colors'
+require 'distll-app-generator/targets'
+require 'distll-app-generator/images'
+require 'distll-app-generator/json'
 require 'json'
 
 command :aim do |c|
-  c.syntax = 'longbow aim'
+  c.syntax = 'distll-app-generator aim'
   c.syntax = 'Takes screenshots for each target in your workspace or project based on a UIAutomation script.'
   c.description = ''
   c.option '-s', '--script SCRIPT', 'Script used to get the app into the proper state for each screenshot'
-  c.option '-d', '--directory DIRECTORY', 'Path where the .xcodeproj or .xcworkspace file && the longbow.json file live.'
-  c.option '-u', '--url URL', 'URL of a longbow formatted JSON file.'
+  c.option '-d', '--directory DIRECTORY', 'Path where the .xcodeproj or .xcworkspace file && the distll-app-generator.json file live.'
+  c.option '-u', '--url URL', 'URL of a distll-app-generator formatted JSON file.'
   c.option '-n', '--name NAME', 'Name of the target to get a screenshot for.'
   c.option '-v', '--verbose', 'Output all logs from UIAutomation/xcodebuild'
 
   c.action do |args, options|
     # Check for newer version
-    Longbow::check_for_newer_version unless $nolog
+    DistllAppGenerator::check_for_newer_version unless $nolog
 
     # Set Up
     @script = options.script ? options.script : nil
@@ -28,14 +28,14 @@ command :aim do |c|
 
     # Create JSON object
     if @url
-      obj = Longbow::json_object_from_url @url
+      obj = DistllAppGenerator::json_object_from_url @url
     else
-      obj = Longbow::json_object_from_directory @directory
+      obj = DistllAppGenerator::json_object_from_directory @directory
     end
 
     # Break if Bad
-    unless obj || Longbow::lint_json_object(obj)
-      Longbow::red "\n Invalid JSON. Please lint the file, and try again.\n"
+    unless obj || DistllAppGenerator::lint_json_object(obj)
+      DistllAppGenerator::red "\n Invalid JSON. Please lint the file, and try again.\n"
       next
     end
 
@@ -46,7 +46,7 @@ command :aim do |c|
       end
 
       if @targets.length == 0
-        Longbow::red "\n  Couldn't find a target named #{@target_name} in the longbow.json file.\n"
+        DistllAppGenerator::red "\n  Couldn't find a target named #{@target_name} in the distll-app-generator.json file.\n"
         next
       end
     else
@@ -64,7 +64,7 @@ command :aim do |c|
       @target_names << t['name']
     end
     target_string = @target_names.join(',')
-    Longbow::blue "  Beginning screenshots..."
+    DistllAppGenerator::blue "  Beginning screenshots..."
     exec "#{resources_path}/aim.sh #{target_string} verbose" if options.verbose
     exec "#{resources_path}/aim.sh #{target_string}" if !options.verbose
   end

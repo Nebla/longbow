@@ -1,4 +1,4 @@
-module Longbow
+module DistllAppGenerator
 
   # Create Plist from Original Plist Content
   def self.create_plist_from_old_plist old_plist, info_hash, global_hash
@@ -61,4 +61,9 @@ module Longbow
     return '<string>' + value.to_s + '</string>'
   end
 
+  def self.get_main_plist_path(main_target)
+    main_plist = main_target.build_configurations[0].build_settings['INFOPLIST_FILE']
+    main_plist.sub! '$(SRCROOT)/', ''
+    return main_plist
+  end
 end

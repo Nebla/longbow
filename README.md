@@ -7,26 +7,26 @@ One codebase. Multiple App Store submission targets with different icons, launch
 **Solution**
 
 ```
-$ longbow install
-$ longbow shoot
-$ longbow aim
+$ distll-app-generator install
+$ distll-app-generator shoot
+$ distll-app-generator aim
 ```
 
 **About**
 
-Longbow is a command-line run ruby gem that duplicates the main target in your `.xcworkspace` or `.xcodeproj` file, then reads from a JSON file to fill out the rest of your new target. It looks for certain keys and does things like taking an icon image and resizing it for the various icons you'll need, and adding keys to the info.plist file for that target. The goal was to be practically autonomous in creating new targets and apps.
+DistllAppGenerator is a command-line run ruby gem that duplicates the main target in your `.xcworkspace` or `.xcodeproj` file, then reads from a JSON file to fill out the rest of your new target. It looks for certain keys and does things like taking an icon image and resizing it for the various icons you'll need, and adding keys to the info.plist file for that target. The goal was to be practically autonomous in creating new targets and apps.
 
-Additionally, it can create screenshots for each target app store submission. You write a simple UIAutomation script (it's just JavaScript) and Longbow takes care of taking the screenshots for each combination of target, device, and language.
+Additionally, it can create screenshots for each target app store submission. You write a simple UIAutomation script (it's just JavaScript) and DistllAppGenerator takes care of taking the screenshots for each combination of target, device, and language.
 
 **Requirements**
 
-Longbow requires Xcode 5+, and your app must use the new .xcassets paradigm for icons, launch screens, etc.
+DistllAppGenerator requires Xcode 5+, and your app must use the new .xcassets paradigm for icons, launch screens, etc.
 
 ## Table of Contents
 
 * [Installation](#installation)
 * [Set Up](#set-up)
-* [Formatting longbow.json](#formatting-longbow-json)
+* [Formatting distll-app-generator.json](#formatting-distll-app-generator-json)
 * [Create a Target](#create-a-target)
 * [Global Options](#global-options)
 * [The Future](#the-future)
@@ -34,17 +34,17 @@ Longbow requires Xcode 5+, and your app must use the new .xcassets paradigm for 
 
 ## Installation
 
-Longbow is officially hosted on [RubyGems](http://rubygems.org/gems/longbow), so installation is a breeze:
+DistllAppGenerator is officially hosted on [RubyGems](http://rubygems.org/gems/distll-app-generator), so installation is a breeze:
 
-    $ gem install longbow
+    $ gem install distll-app-generator
 
 ## Set Up
 
-Run `longbow install` in the directory where your `.xcworkspace` or `.xcodeproj` file lives. This will create a file, `longbow.json`, where they will be used to build out from here. You are almost ready to start creating new targets
+Run `distll-app-generator install` in the directory where your `.xcworkspace` or `.xcodeproj` file lives. This will create a file, `distll-app-generator.json`, where they will be used to build out from here. You are almost ready to start creating new targets
 
-## Formatting longbow.json
+## Formatting distll-app-generator.json
 
-Here's a basic gist of how to format your `longbow.json` file:
+Here's a basic gist of how to format your `distll-app-generator.json` file:
 
 ```json
 {
@@ -97,21 +97,21 @@ The `icon_url` and `icon_path` key corresponds to the location of the icon image
 
 ## Creating/Updating a Target
 
-Now that you're set up - it's time to add a target. Make sure that you have updated your `longbow.json` file with the correct information for your target, and then run the following command inside the project directory.
+Now that you're set up - it's time to add a target. Make sure that you have updated your `distll-app-generator.json` file with the correct information for your target, and then run the following command inside the project directory.
 
-`longbow shoot -n NameOfTarget`
+`distll-app-generator shoot -n NameOfTarget`
 
-What this does is goes to your `longbow.json` file and looks for the correct target dictionary, and tries to create a new Target in your app. It then handles the various icons/info_plist additions specifically for this target. If your target already exists, it will just update the icon images and plist settings.
+What this does is goes to your `distll-app-generator.json` file and looks for the correct target dictionary, and tries to create a new Target in your app. It then handles the various icons/info_plist additions specifically for this target. If your target already exists, it will just update the icon images and plist settings.
 
-If you leave off the `-n` option, it will run for all targets in the `longbow.json` file.
+If you leave off the `-n` option, it will run for all targets in the `distll-app-generator.json` file.
 
 **Other Options**
 
 * `-d, --directory` - if not in the current directory, specify a new path
-* `-u, --url` - the url of a longbow formatted JSON file
-* `-i, --images` - set this flag to not recreate images in the longbow file
+* `-u, --url` - the url of a distll-app-generator formatted JSON file
+* `-i, --images` - set this flag to not recreate images in the distll-app-generator file
 
-`longbow shoot -n NameOfTarget -d ~/Path/To/App -u http://someurl.com/longbow.json`
+`distll-app-generator shoot -n NameOfTarget -d ~/Path/To/App -u http://someurl.com/distll-app-generator.json`
 
 ## Global Options
 
@@ -123,11 +123,11 @@ If you leave off the `-n` option, it will run for all targets in the `longbow.js
 
 So you've created all your targets and finished the first version of the app - now you need the screen shots to submit it to the App Store.
 
-First you'll need to write a single UIAutomation script to take the screenshots. You can see [Apple's Documentation](https://developer.apple.com/library/ios/documentation/DeveloperTools/Reference/UIAutomationRef/_index.html) for more information on writing the script. The part we're primarily concerned with is the captureLocalizedScreenshot() method provided by Longbow. This method will take the screenshot with a consistent naming scheme and place it in a folder for each target.
+First you'll need to write a single UIAutomation script to take the screenshots. You can see [Apple's Documentation](https://developer.apple.com/library/ios/documentation/DeveloperTools/Reference/UIAutomationRef/_index.html) for more information on writing the script. The part we're primarily concerned with is the captureLocalizedScreenshot() method provided by DistllAppGenerator. This method will take the screenshot with a consistent naming scheme and place it in a folder for each target.
 
 `captureLocalizedScreenshot("homeScreen");` will create ~/Desktop/screenshots/TargetName/en-US/iOS-4-in\_\_\_portrait\_\_\_homeScreen.png
 
-Once you've created your automation script, you can run it by calling `longbow aim`. This command will generate a variation of your UIAutomation script for each target, then handle running it for each target. Grab a drink, depending on your script and your number of targets, this may take a while.
+Once you've created your automation script, you can run it by calling `distll-app-generator aim`. This command will generate a variation of your UIAutomation script for each target, then handle running it for each target. Grab a drink, depending on your script and your number of targets, this may take a while.
 
 **Options**
 
@@ -135,7 +135,7 @@ Similar to the `shoot` command, there are flags you can use with this feature.
 
 * `-n` - name of the target to capture
 * `-d` - directory the project lives in
-* `-u` - url of the longbow.json file
+* `-u` - url of the distll-app-generator.json file
 
 ## The Future
 
