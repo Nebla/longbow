@@ -59,7 +59,7 @@ module DistllAppGenerator
       banner_directory = assets_directory + '/banner.imageset'
       FileUtils::mkdir_p banner_directory
       download_content(banner_directory, assets, 'top')
-
+      
       # Launch Image
       launch_directory = assets_directory + '/LaunchImage'+target+'.launchimage'
       FileUtils::mkdir_p launch_directory
@@ -77,7 +77,7 @@ module DistllAppGenerator
 
     end
 
-    def self.create_login_video(directory, target, video)
+    def self.create_login_video directory, target, video
       video_url = video
       contents_response = self.download_resource video_url
       if contents_response.code == "200"
