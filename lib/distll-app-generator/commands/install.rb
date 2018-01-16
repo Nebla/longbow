@@ -17,7 +17,7 @@ command :install do |c|
 
   c.option '', '--video VIDEO_URL', 'The url where the login video is downloaded'
 
-  c.option '', '--theme THEME_JSON_FILE', 'The json file name with the theme configuration for this brand [theme]'
+  c.option '', '--theme THEME_JSON_FILE', 'The json file name with the theme configuration for this brand [ClassicTheme]'
   c.option '', '--typekit TYPEKIT_NAME', 'The json file name for the typekit [Swiss]'
   c.option '', '--iconset ICON_SET_NAME', 'The icon set name [Basis]'
 
@@ -56,7 +56,7 @@ command :install do |c|
     end
 
 
-    @theme_file = options.theme ? options.theme : 'theme'
+    @theme_file = options.theme ? options.theme : 'ClassicTheme'
     @type_kit = options.typekit ? options.typekit : 'Swiss'
     @icon_set = options.iconset ? options.iconset : 'Basis'
 
