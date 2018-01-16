@@ -216,7 +216,11 @@ module DistllAppGenerator
 
   def self.add_build_phases_to_new_target(main_target, new_target)
     main_target.build_phases.objects.each do |b|
-      if b.isa == 'PBXSourcesBuildPhase'
+
+      if b.isa == 'PBXShellScriptBuildPhase'
+        phase = new_target.new_shell_script_build_phase(name = b.display_name)
+        phase.shell_script = b.shell_script
+      elsif b.isa == 'PBXSourcesBuildPhase'
         b.files_references.each do |f|
           new_target.source_build_phase.add_file_reference f
         end
@@ -233,9 +237,6 @@ module DistllAppGenerator
           next if f.path == 'V5.mp4'
           new_target.resources_build_phase.add_file_reference f
         end
-      elsif b.isa == 'PBXShellScriptBuildPh ase'
-        phase = new_target.new_shell_script_build_phase(name = b.display_name)
-        phase.shell_script = b.shell_script
       end
     end
   end

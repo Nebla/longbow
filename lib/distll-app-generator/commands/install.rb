@@ -17,8 +17,8 @@ command :install do |c|
 
   c.option '', '--video VIDEO_URL', 'The url where the login video is downloaded'
 
-  c.option '', '--theme THEME_JSON_FILE', 'The json file with the theme configuration for this brand [theme.json]'
-  c.option '', '--typekit TYPEKIT_NAME', 'The json file name for the typekit [fonts]'
+  c.option '', '--theme THEME_JSON_FILE', 'The json file name with the theme configuration for this brand [theme]'
+  c.option '', '--typekit TYPEKIT_NAME', 'The json file name for the typekit [Swiss]'
   c.option '', '--iconset ICON_SET_NAME', 'The icon set name [Basis]'
 
   c.option '-d', '--dark', 'Set this flag if you prefer a dark status bar'
@@ -56,8 +56,8 @@ command :install do |c|
     end
 
 
-    @theme_file = options.theme ? options.theme : 'theme.json'
-    @type_kit = options.typekit ? options.typekit : 'fonts'
+    @theme_file = options.theme ? options.theme : 'theme'
+    @type_kit = options.typekit ? options.typekit : 'Swiss'
     @icon_set = options.iconset ? options.iconset : 'Basis'
 
     @url_scheme = options.scheme ? options.scheme : @app_name.delete(' ').downcase
