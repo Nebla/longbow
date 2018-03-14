@@ -192,17 +192,18 @@ module DistllAppGenerator
       target_group.set_path(target)
       self.add_files(project, "Apps/#{target}/*", target_group, new_target)
 
-      if video
+      # We move the video download to the build stage of the app, so we don't need to download it during app creation.
+      #if video
         # Create login video
-        DistllAppGenerator::Assets.create_login_video(directory, target, video)
-        distll_group = self.find_group(project.main_group, 'Distll')
-        resources_group = self.find_group(distll_group, 'Resources')
-        assets_group = self.find_group(resources_group, 'Assets')
-        videos_group = self.find_group(assets_group, 'Videos')
-        target_group = videos_group.new_group(target)
-        target_group.set_source_tree(videos_group.source_tree)
-        self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
-      end
+      #  DistllAppGenerator::Assets.create_login_video(directory, target, video)
+      #  distll_group = self.find_group(project.main_group, 'Distll')
+      #  resources_group = self.find_group(distll_group, 'Resources')
+      #  assets_group = self.find_group(resources_group, 'Assets')
+      #  videos_group = self.find_group(assets_group, 'Videos')
+      #  target_group = videos_group.new_group(target)
+      #  target_group.set_source_tree(videos_group.source_tree)
+      #  self.add_files(project, "Distll/Resources/Assets/Videos/#{target}/*", target_group, new_target)
+      #end
 
       DistllAppGenerator::blue '  ' + target + ' created.' unless $nolog
     else
