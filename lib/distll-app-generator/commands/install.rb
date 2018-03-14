@@ -55,7 +55,6 @@ command :install do |c|
       exit -1
     end
 
-
     @theme_file = options.theme ? options.theme : 'ClassicTheme'
     @type_kit = options.typekit ? options.typekit : 'Swiss'
     @icon_set = options.iconset ? options.iconset : 'Basis'
@@ -94,10 +93,10 @@ command :install do |c|
               "CFBundleDisplayName":"'+@app_name+'",
               "Theme":"'+@theme_file+'",
               "TypeKit":"'+@type_kit+'",
-              "IconSet":"'+@icon_set+'"
+              "IconSet":"'+@icon_set+'",
+              "LoginVideoURL":"'+@video_url+'"
           },
           "assets_url": "https://adminiu-media.s3.amazonaws.com/brand_images/'+@brand_id+'",
-          "video_url": "'+@video_url+'",
           "create_dir_for_plist": true
       }],
       "global_info_keys": {
@@ -106,7 +105,6 @@ command :install do |c|
     }'
 
     DistllAppGenerator::purple @file_string
-
 
     # Install
     if File.exist?(@json_path)
