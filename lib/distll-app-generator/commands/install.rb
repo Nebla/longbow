@@ -14,8 +14,9 @@ command :install do |c|
   c.option '-s', '--scheme URL_Scheme/Facebook_suffix', 'The URL schemes or facebook suffix that his app can handle'
   c.option '-i', '--itunes ITUNES_URL', 'The app itunes url'
   c.option '-m', '--mixpanel MIXPANEL_TOKEN', 'The partner mixpanel token'
-  c.option '-B', '--branchio BRANCHIO_KEY', 'The branch io public key'
+  c.option '-B', '--branchiokey BRANCHIO_KEY', 'The branch io public key'
   c.option '-D', '--branchiodomain BRANCHIO_DOMAIN', 'The branch io domain'
+  c.option '-L', '--branchiolink BRANCHIO_LINK', 'The branch io link'
 
   c.option '', '--video VIDEO_URL', 'The url where the login video is downloaded'
 
@@ -51,11 +52,14 @@ command :install do |c|
     @mixpanel_token = options.mixpanel
     correct = check_param(@mixpanel_token,"MIXPANEL TOKEN")
 
-    @branch_key = options.branchio
+    @branchio_key = options.branchiokey
     correct = check_param(@branch_key,"BRANCHIO KEY")
 
     @branchio_domain = options.branchiodomain
     correct = check_param(@branchio_domain,"BRANCHIO DOMAIN")
+
+    @branchio_link = options.branchiolink
+    correct = check_param(@branchio_link,"BRANCHIO LINK")
 
     unless correct
       DistllAppGenerator::red 'Some parameters are missing. Fix them and run the script again'
@@ -104,7 +108,8 @@ command :install do |c|
               "IconSet":"'+@icon_set+'",
               "LoginVideoURL":"'+@video_url+'",
               "branch_app_domain":"'+@branchio_domain+'",
-              "branch_key":"'+@branch_key+'"
+              "branch_key":"'+@branchio_key+'",
+              "BranchLink":"'+@branchio_link+'"
           },
           "assets_url": "https://adminiu-media.s3.amazonaws.com/brand_images/'+@brand_id+'",
           "create_dir_for_plist": true
