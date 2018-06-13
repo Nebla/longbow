@@ -14,6 +14,8 @@ command :install do |c|
   c.option '-s', '--scheme URL_Scheme/Facebook_suffix', 'The URL schemes or facebook suffix that his app can handle'
   c.option '-i', '--itunes ITUNES_URL', 'The app itunes url'
   c.option '-m', '--mixpanel MIXPANEL_TOKEN', 'The partner mixpanel token'
+  c.option '-B', '--branchio BRANCHIO_KEY', 'The branch io public key'
+  c.option '-D', '--branchiodomain BRANCHIO_DOMAIN', 'The branch io domain'
 
   c.option '', '--video VIDEO_URL', 'The url where the login video is downloaded'
 
@@ -48,6 +50,12 @@ command :install do |c|
 
     @mixpanel_token = options.mixpanel
     correct = check_param(@mixpanel_token,"MIXPANEL TOKEN")
+
+    @branch_key = options.branchio
+    correct = check_param(@branch_key,"BRANCHIO KEY")
+
+    @branchio_domain = options.branchiodomain
+    correct = check_param(@branchio_domain,"BRANCHIO DOMAIN")
 
     unless correct
       DistllAppGenerator::red 'Some parameters are missing. Fix them and run the script again'
@@ -94,7 +102,9 @@ command :install do |c|
               "Theme":"'+@theme_file+'",
               "TypeKit":"'+@type_kit+'",
               "IconSet":"'+@icon_set+'",
-              "LoginVideoURL":"'+@video_url+'"
+              "LoginVideoURL":"'+@video_url+'",
+              "branch_app_domain":"'+@branchio_domain+'",
+              "branch_key":"'+@branch_key+'"
           },
           "assets_url": "https://adminiu-media.s3.amazonaws.com/brand_images/'+@brand_id+'",
           "create_dir_for_plist": true
