@@ -101,6 +101,7 @@ module DistllAppGenerator
     main_target = proj.targets.first
     @target = create_target(proj, directory, target, assets, video)
 
+    # Create new info.plist
     main_plist = DistllAppGenerator::get_main_plist_path(main_target)
     main_plist_contents = File.read(directory + '/' + main_plist)
 
@@ -109,7 +110,22 @@ module DistllAppGenerator
     File.open(target_plist_path, 'w') do |f|
       f.write(plist_text)
     end
+
     DistllAppGenerator::green '  - ' + target + '-Info.plist Updated.' unless $nolog
+
+    # Update entitlements with applink
+    entitlements_path = DistllAppGenerator::get_main_entitlements_path(main_target)
+    return false if entitlements_path == nil
+    entitlements_contents = File.read(directory + '/' + entitlements_path)
+
+    associated_domain = 'applinks:' + info_keys["branch_app_domain"]
+    entitlements_text = DistllAppGenerator::update_plist entitlements_contents, {"com.apple.developer.associated-domains" => associated_domain}
+
+    File.open(entitlements_path, 'w') do |f|
+        f.write(entitlements_text)
+    end
+
+    DistllAppGenerator::green '  - ' + entitlements_path + ' Updated.' unless $nolog
 
 
     # Add Build Settings
