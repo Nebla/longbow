@@ -119,7 +119,7 @@ module DistllAppGenerator
     entitlements_contents = File.read(directory + '/' + entitlements_path)
 
     associated_domain = 'applinks:' + info_keys["branch_app_domain"]
-    entitlements_text = DistllAppGenerator::update_plist entitlements_contents, {"com.apple.developer.associated-domains" => associated_domain}
+    entitlements_text = DistllAppGenerator::update_entitlements entitlements_contents, {"com.apple.developer.associated-domains" => associated_domain}
 
     File.open(entitlements_path, 'w') do |f|
         f.write(entitlements_text)
