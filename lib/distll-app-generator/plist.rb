@@ -21,6 +21,27 @@ module DistllAppGenerator
     return plist_text
   end
 
+  # Update Plist file with values on keys from info_hash
+  def self.update_entitlements entitlements, info_hash
+    return '' unless entitlements
+    return entitlements unless (info_hash)
+
+    info_hash.each_key do |k|
+        value = info_hash[k]
+        matches = entitlements.match /<key>#{k}<\/key>\s*<(.*?)>\s*/
+        
+        if matches
+            entitlements = entitlements.sub(matches[0], matches[0] + recursive_plist_value_for_value(value) + "\n")
+            DistllAppGenerator::blue ' match - ' + matches[0] unless $nolog
+        else
+            entitlements = entitlements.sub(/<\/dict>\s*<\/plist>/, "<key>" + k + "</key>\n" + recursive_plist_value_for_value(value) + "\n</dict></plist>")
+        end
+    end
+
+    return entitlements
+  end
+
+
   # Recursively create Plist Values for a given object
   def self.recursive_plist_value_for_value value
     return '' unless value != nil
@@ -66,4 +87,11 @@ module DistllAppGenerator
     main_plist.sub! '$(SRCROOT)/', ''
     return main_plist
   end
+
+  def self.get_main_entitlements_path(main_target)
+    main_entitlements = main_target.build_configurations[0].build_settings['CODE_SIGN_ENTITLEMENTS']
+    main_entitlements.sub! '$(SRCROOT)/', ''
+    return main_entitlements
+  end
+
 end
